@@ -8,11 +8,20 @@ spec:
       image: docker.io/library/postgres:18
       env:
         - name: POSTGRES_PASSWORD
-          value: "{{.POSTGRES_PASSWORD}}"
+          valueFrom:
+            secretKeyRef:
+              name: stashbook-db
+              key: POSTGRES_PASSWORD
         - name: POSTGRES_USER
-          value: "{{.POSTGRES_USER}}"
+          valueFrom:
+            secretKeyRef:
+              name: stashbook-db
+              key: POSTGRES_USER
         - name: POSTGRES_DB
-          value: "{{.POSTGRES_DB}}"
+          valueFrom:
+            secretKeyRef:
+              name: stashbook-db
+              key: POSTGRES_DB
       ports:
         - containerPort: 5432
           hostPort: 5432
