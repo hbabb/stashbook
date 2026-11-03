@@ -1,0 +1,137 @@
+
+// Stashbook database schema
+//
+// This file mirrors the goose migrations in migrations/.
+// Each section below is one migration, in the order they run.
+// Enums come right before the first table that uses them.
+// Money is stored as whole cents (see ADR 3).
+
+// ---------------------------------------------------------------------------
+// Migration: create_accounts
+// ---------------------------------------------------------------------------
+
+// What kind of account it is.
+Enum account_type {
+  checking
+  savings
+  loan
+  credit_card
+  cash
+  brokerage
+  retirement
+}
+
+// Whether an account is personal or for the business.
+Enum account_owner {
+  personal
+  business
+}
+
+// Every account that has a ledger: checking, savings, cards, loans,
+// brokerage, and retirement.
+Table accounts {
+  id integer [pk, increment]
+  name varchar(100) [not null, unique]
+  type account_type [not null]
+  owner account_owner [not null, default: 'personal']
+  opening_balance_cents bigint [not null, default: 0] // balance before the first entry
+}
+
+// ---------------------------------------------------------------------------
+// Migration: create_categories
+// ---------------------------------------------------------------------------
+
+// Spending categories. Also used as the envelopes for budgeting.
+Table categories {
+  id integer [pk, increment]
+  name varchar(100) [not null, unique]
+}
+
+// ---------------------------------------------------------------------------
+// Migration: create_entries
+// ---------------------------------------------------------------------------
+
+// Which kind of business expense an entry is, if any.
+Enum business_type {
+  none
+  w2
+  side_hustle
+}
+
+// Reimbursement state for W-2 business expenses.
+Enum reimbursement_status {
+  pending
+  reimbursed
+  not_reimbursed
+}
+
+// One debit or credit line in an account's ledger.
+Table entries {
+  id integer [pk, increment]
+  account_id integer [not null, ref: > accounts.id]
+  date date [not null]
+  payee varchar(100) [not null]
+  debit_cents bigint [not null, default: 0]
+  credit_cents bigint [not null, default: 0]
+  category_id integer [ref: > categories.id]
+  business business_type [not null, default: 'none']
+  reimbursement reimbursement_status // only set for business expenses
+  cleared boolean [not null, default: false] // matched against the bank statement
+  paperless_doc_id integer // receipt in Paperless-ngx
+  memo varchar(255)
+}
+
+// ---------------------------------------------------------------------------
+// Migration: create_subscriptions
+// ---------------------------------------------------------------------------
+
+// How often a subscription renews.
+Enum frequency_type {
+  monthly
+  annual
+}
+
+// Recurring charges, monthly or annual.
+Table subscriptions {
+  id integer [pk, increment]
+  payee varchar(100) [not null]
+  amount_cents bigint [not null]
+  account_id integer [not null, ref: > accounts.id]
+  category_id integer [ref: > categories.id]
+  frequency frequency_type [not null]
+  next_due date [not null]
+}
+
+// ---------------------------------------------------------------------------
+// Migration: create_envelope_funding
+// ---------------------------------------------------------------------------
+
+// Money assigned to a category's envelope for a given month.
+Table envelope_funding {
+  id integer [pk, increment]
+  category_id integer [not null, ref: > categories.id]
+  month date [not null] // first day of the month
+  amount_cents bigint [not null]
+}
+
+// ---------------------------------------------------------------------------
+// Groups
+// ---------------------------------------------------------------------------
+
+// Accounts and categories that everything else points at.
+TableGroup setup {
+  accounts
+  categories
+}
+
+// The ledger itself.
+TableGroup ledger {
+  entries
+}
+
+// Budgeting: recurring charges and envelope funding.
+TableGroup budgeting {
+  subscriptions
+  envelope_funding
+}
+

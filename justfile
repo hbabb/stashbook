@@ -14,3 +14,19 @@ down:
 # Connect localhost:5432 to the database (leave running)
 db-forward:
     kubectl port-forward pod/stashbook 5432:5432
+
+# Create a new migration file: just migration <name>
+migration name:
+    go tool goose -dir migrations create {{name}} sql
+
+# Apply all pending migrations
+migrate-up:
+    doppler run --command='go tool goose -dir migrations postgres "$DATABASE_URL" up'
+
+# Roll back the most recent migration
+migrate-down:
+    doppler run --command='go tool goose -dir migrations postgres "$DATABASE_URL" down'
+
+# Show which migrations have been applied
+migrate-status:
+    doppler run --command='go tool goose -dir migrations postgres "$DATABASE_URL" status'
