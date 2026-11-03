@@ -30,3 +30,7 @@ migrate-down:
 # Show which migrations have been applied
 migrate-status:
     doppler run --command='go tool goose -dir migrations postgres "$DATABASE_URL" status'
+
+# Generate Go code from sqlc
+generate:
+    go tool sqlc generate
