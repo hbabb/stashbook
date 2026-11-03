@@ -25,6 +25,10 @@ CREATE TABLE entries (
     paperless_doc_id integer,
     memo varchar(255)
 );
+
+CREATE INDEX idx_entries_account_id_date ON entries (account_id, date);
+CREATE INDEX idx_entries_category_id ON entries (category_id);
+
 -- +goose Down
 DROP TABLE entries;
 DROP TYPE reimbursement_status;

@@ -14,6 +14,9 @@ CREATE TABLE subscriptions (
     next_due date NOT NULL
 );
 
+CREATE INDEX idx_subscriptions_account_id ON subscriptions (account_id);
+CREATE INDEX idx_subscriptions_category_id ON subscriptions (category_id);
+
 -- +goose Down
 DROP TABLE subscriptions;
 DROP TYPE frequency_type;

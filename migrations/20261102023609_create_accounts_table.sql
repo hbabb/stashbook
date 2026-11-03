@@ -21,6 +21,7 @@ CREATE TABLE accounts (
     owner account_owner NOT NULL DEFAULT 'personal',
     opening_balance_cents bigint NOT NULL DEFAULT 0
 );
+
 -- +goose Down
 DROP TABLE accounts;
 DROP TYPE account_owner;
