@@ -33,7 +33,7 @@ linters:
         linters:
           - noctx
 
-# Formatters rewrite code into one style (ADR-0011).
+# Formatters rewrite code into one style.
 formatters:
   enable:
     - gofumpt # the standard Go format
