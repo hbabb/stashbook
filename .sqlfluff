@@ -1,5 +1,6 @@
 [sqlfluff]
 dialect = postgres
+exclude_rules = AM04
 
 [sqlfluff:rules:references.keywords]
 ignore_words = name, type, owner, date, month, day

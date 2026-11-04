@@ -30,3 +30,26 @@ migrate-down:
 # Show which migrations have been applied
 migrate-status:
     doppler run --command='go tool goose -dir migrations postgres "$DATABASE_URL" status'
+
+# Generate Go code from sqlc
+generate:
+    go tool sqlc generate
+
+# Run the server with Doppler's development settings
+dev:
+    doppler run -- go run ./cmd/server
+
+# Update go.mod and go.sum to match the imports
+tidy:
+    go mod tidy
+
+# Format the Go code
+fmt:
+    golangci-lint fmt
+
+# Lint the Go code
+lint:
+    golangci-lint run
+
+# Run before every jj commit
+pre-commit: generate tidy fmt lint
