@@ -1,0 +1,41 @@
+name: CI
+
+on:
+    pull_request:
+        branches: [main]
+
+permissions:
+    contents: read
+
+jobs:
+    pre-commit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v7
+
+            - name: Set up Go
+              uses: actions/setup-go@v7
+              with:
+                go-version-file: go.mod
+
+            - name: Install golangci-lint
+              uses: golangci/golangci-lint-action@v9
+              with:
+                version: v2.15
+                install-only: true
+
+            - name: Install just
+              uses: extractions/setup-just@v4
+
+            - name: Run pre-commit checks
+              run:  just pre-commit
+
+            - name: Fail if pre-commit changed any files
+              run:  |
+                if [ -n "$(git status --porcelain)" ]; then
+                    echo "These files changed. Run 'just pre-commit' locally and commit the result:"
+                    git status --porcelain
+                    git diff
+                    exit 1
+                fi
