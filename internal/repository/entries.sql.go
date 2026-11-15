@@ -66,14 +66,17 @@ func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry
 	return i, err
 }
 
-const deleteEntry = `-- name: DeleteEntry :exec
+const deleteEntry = `-- name: DeleteEntry :execrows
 DELETE FROM entries
 WHERE id = $1
 `
 
-func (q *Queries) DeleteEntry(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteEntry, id)
-	return err
+func (q *Queries) DeleteEntry(ctx context.Context, id int32) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteEntry, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const getAccountBalance = `-- name: GetAccountBalance :one
@@ -323,7 +326,7 @@ func (q *Queries) ListUnclearedEntries(ctx context.Context, accountID int32) ([]
 	return items, nil
 }
 
-const setEntryCleared = `-- name: SetEntryCleared :exec
+const setEntryCleared = `-- name: SetEntryCleared :execrows
 UPDATE entries
 SET cleared = $2
 WHERE id = $1
@@ -334,12 +337,15 @@ type SetEntryClearedParams struct {
 	Cleared bool
 }
 
-func (q *Queries) SetEntryCleared(ctx context.Context, arg SetEntryClearedParams) error {
-	_, err := q.db.Exec(ctx, setEntryCleared, arg.ID, arg.Cleared)
-	return err
+func (q *Queries) SetEntryCleared(ctx context.Context, arg SetEntryClearedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setEntryCleared, arg.ID, arg.Cleared)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
-const setReimbursementStatus = `-- name: SetReimbursementStatus :exec
+const setReimbursementStatus = `-- name: SetReimbursementStatus :execrows
 UPDATE entries
 SET reimbursement = $2
 WHERE id = $1
@@ -350,9 +356,12 @@ type SetReimbursementStatusParams struct {
 	Reimbursement NullReimbursementStatus
 }
 
-func (q *Queries) SetReimbursementStatus(ctx context.Context, arg SetReimbursementStatusParams) error {
-	_, err := q.db.Exec(ctx, setReimbursementStatus, arg.ID, arg.Reimbursement)
-	return err
+func (q *Queries) SetReimbursementStatus(ctx context.Context, arg SetReimbursementStatusParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setReimbursementStatus, arg.ID, arg.Reimbursement)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateEntry = `-- name: UpdateEntry :one

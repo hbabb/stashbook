@@ -33,6 +33,6 @@ SET
 WHERE id = $1
 RETURNING id, name, type, owner, opening_balance_cents;
 
--- name: DeleteAccount :exec
+-- name: DeleteAccount :execrows
 DELETE FROM accounts
 WHERE id = $1;

@@ -2,7 +2,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -24,7 +23,7 @@ func (h *Accounts) List(w http.ResponseWriter, r *http.Request) {
 	accounts, err := h.queries.ListAccounts(r.Context())
 	if err != nil {
 		slog.Error("list accounts", "err", err)
-		http.Error(w, "could not load accounts", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, "could not load accounts")
 		return
 	}
 
@@ -32,8 +31,5 @@ func (h *Accounts) List(w http.ResponseWriter, r *http.Request) {
 		accounts = []repository.Account{}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(accounts); err != nil {
-		slog.Error("encode accounts", "err", err)
-	}
+	writeJSON(w, http.StatusOK, accounts)
 }
