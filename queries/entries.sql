@@ -32,7 +32,7 @@ SET
 WHERE id = $1
 RETURNING *;
 
--- name: DeleteEntry :exec
+-- name: DeleteEntry :execrows
 DELETE FROM entries
 WHERE id = $1;
 
@@ -41,7 +41,7 @@ SELECT * FROM entries
 WHERE account_id = $1 AND NOT cleared
 ORDER BY date, id;
 
--- name: SetEntryCleared :exec
+-- name: SetEntryCleared :execrows
 UPDATE entries
 SET cleared = $2
 WHERE id = $1;
@@ -74,7 +74,7 @@ SELECT * FROM entries
 WHERE reimbursement = $1
 ORDER BY date, id;
 
--- name: SetReimbursementStatus :exec
+-- name: SetReimbursementStatus :execrows
 UPDATE entries
 SET reimbursement = $2
 WHERE id = $1;
