@@ -36,7 +36,7 @@ func run() error {
 
 	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
 	if err != nil {
-		return fmt.Errorf("create database pool: %w", err)
+		return fmt.Errorf("open database pool: %w", err)
 	}
 	defer pool.Close()
 
@@ -51,6 +51,10 @@ func run() error {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Get("/api/accounts", accounts.List)
+	r.Get("/api/accounts/{id}", accounts.Get)
+	r.Post("/api/accounts", accounts.Create)
+	r.Put("/api/accounts/{id}", accounts.Update)
+	r.Delete("/api/accounts/{id}", accounts.Delete)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
